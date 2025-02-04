@@ -18,6 +18,7 @@ When you click the **Knit** button a document will be generated that includes bo
 ```{r cars}
 library(tidyverse)
 library(dplyr)
+library(gt)
 ```
 
 ## Load in the data
@@ -117,3 +118,22 @@ vaping_life_data %>%
   geom_point() +
   facet_wrap(~ra)
 ```
+
+## Table
+
+```{r}
+total_data <- full_join(life_expectancy_data, calorie_data) %>% 
+  full_join(., tobacco_data) %>%
+  full_join(., alcohol_data) %>% 
+  full_join(., vaping_data) %>% 
+  group_by(ra) %>% 
+  summarise(life_expectancy = mean(life_expectancy, na.rm = TRUE),
+            calories = mean(calories, na.rm = TRUE),
+            alcohol = mean(alcohol, na.rm = TRUE),
+            tobacco = mean(tobacco, na.rm = TRUE),
+            vaping = mean(vaping, na.rm = TRUE))
+
+total_data %>%
+  gt()
+```
+
