@@ -9,11 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r cars}
 library(tidyverse)
@@ -44,8 +39,8 @@ life_expectancy_data <- life_expectancy_data %>%
   filter(Sex == "Total")
 
 calorie_data <- calorie_data %>% 
-    select(Reference.area, OBS_VALUE, TIME_PERIOD, Sex, Age) %>%
-  rename(ra = Reference.area,
+    select(`Reference area`, OBS_VALUE, TIME_PERIOD, Sex, Age) %>%
+  rename(ra = `Reference area`,
          calories = OBS_VALUE) %>% 
   filter(Sex == "Total")
 
@@ -71,6 +66,46 @@ vaping_data <- vaping_data %>%
          Age == "15 years or over")
 ```
 
+## Life expectancy plot  
+
+```{r}
+# Filter for the selected years
+life_time_periods <- life_expectancy_data %>% 
+   filter(TIME_PERIOD %in% c(2018, 2008, 1998))
+
+# Ensure TIME_PERIOD is a factor for proper grouping
+life_time_periods$TIME_PERIOD <- as.factor(life_time_periods$TIME_PERIOD)
+
+# Create the bar plot with country on x-axis and 3 bars per country
+ggplot(life_time_periods, aes(x = ra, y = life_expectancy, fill = TIME_PERIOD)) +
+  geom_bar(stat = "identity", position = "dodge") +  # Dodge groups bars within each country
+  geom_text(aes(label = life_expectancy), # add white label for age
+            position = position_dodge(width = 0.9), 
+            vjust = 1.5, 
+            colour = "white", 
+            size = 5, 
+            fontface = "bold") +
+  labs(title = "Life Expectancy Over Selected Years",
+       x = "Country",
+       y = "Life Expectancy",
+       fill = "Year") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, color = "white"),  # Rotate x-axis labels & make them white
+    axis.text.y = element_text(color = "white"),  # Make y-axis labels white
+    plot.title = element_text(color = "#FFA500", face = "bold", size = 16),  # Title in bright orange
+    panel.background = element_rect(fill = "black"),  # Black background
+    plot.background = element_rect(fill = "black"),  # Black outer background
+    legend.background = element_rect(fill = "black"),  # Black legend background
+    legend.text = element_text(color = "white"),  # White legend text
+    legend.title = element_text(color = "#FFA500", face = "bold")  # Orange legend title
+  ) +
+  scale_fill_manual(values = c("1998" = "#FF7F50",   # Orange-pink gradient
+                               "2008" = "#8A2BE2",   # Bright purple
+                               "2018" = "#FF69B4"))  # Hot pink
+```
+
+
 ## Diet - Calories
 
 ```{r}
@@ -80,7 +115,7 @@ calorie_life_data <- full_join(life_expectancy_data, calorie_data) %>%
 calorie_life_data %>% 
   ggplot(aes(x = life_expectancy, y = calories, color = TIME_PERIOD)) + 
   geom_point() +
-  facet_wrap(~ra)
+  facet_wrap(~ra) 
 ```
 
 ## Tobacco
