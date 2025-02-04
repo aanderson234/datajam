@@ -79,9 +79,8 @@ calorie_life_data <- full_join(life_expectancy_data, calorie_data) %>%
   filter(TIME_PERIOD %in% c(2018, 2008, 1998))
 
 calorie_life_data %>% 
-  ggplot(aes(x = life_expectancy, y = calories, color = TIME_PERIOD)) + 
-  geom_point() +
-  facet_wrap(~ra)
+  ggplot(aes(x = ra, y = calories, fill = factor(TIME_PERIOD))) + 
+  geom_col(position = "dodge")
 ```
 
 ## Tobacco
@@ -91,9 +90,9 @@ tobacco_life_data <- full_join(life_expectancy_data, tobacco_data) %>%
   filter(TIME_PERIOD %in% c(2018, 2008, 1998))
 
 tobacco_life_data %>% 
-  ggplot(aes(x = life_expectancy, y = tobacco, color = TIME_PERIOD)) + 
-  geom_point() +
-  facet_wrap(~ra)
+  ggplot(aes(x = ra, y = tobacco, fill = factor(TIME_PERIOD))) + 
+  geom_col(position = "dodge")
+
 ```
 
 ## Alcohol
@@ -103,9 +102,8 @@ alcohol_life_data <- full_join(life_expectancy_data, alcohol_data) %>%
   filter(TIME_PERIOD %in% c(2018, 2008, 1998))
 
 alcohol_life_data %>% 
-  ggplot(aes(x = life_expectancy, y = alcohol, color = TIME_PERIOD)) + 
-  geom_point() +
-  facet_wrap(~ra)
+  ggplot(aes(x = ra, y = alcohol, fill = factor(TIME_PERIOD))) + 
+  geom_col(position = "dodge")
 ```
 
 ## Vaping
