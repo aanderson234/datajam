@@ -1,14 +1,17 @@
 ---
-title: "plots"
-author: "Naveed"
+title: "The Effect of Lifestyle on Life Expectancy"
+author: "El, Alex and Naveed"
 date: "2025-02-04"
 output: html_document
 ---
+
+# Set Up
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Load Libraries  
 
 ```{r cars}
 library(tidyverse)
@@ -78,87 +81,161 @@ life_time_periods <- life_expectancy_data %>%
 life_time_periods$TIME_PERIOD <- as.factor(life_time_periods$TIME_PERIOD)
 
 # Create the bar plot with country on x-axis and 3 bars per country
-ggplot(life_time_periods, aes(x = ra, y = life_expectancy, fill = TIME_PERIOD)) +
+life_expectancy_plot <- ggplot(life_time_periods, aes(x = ra, y = life_expectancy, fill = TIME_PERIOD)) +
   geom_bar(stat = "identity", position = "dodge") +  # Dodge groups bars within each country
-  geom_text(aes(label = life_expectancy), # add white label for age
-            position = position_dodge(width = 0.9), 
-            vjust = 1.5, 
-            colour = "white", 
-            size = 5, 
-            fontface = "bold") +
-  labs(title = "Life Expectancy Over Selected Years",
+  coord_cartesian(ylim = c(75, 85)) +  # Zoom in without removing bars
+  scale_y_continuous(breaks = seq(75, 85, by = 1)) +  # Keep tick marks at intervals of 1
+  labs(title = "Life Expectancy",
        x = "Country",
        y = "Life Expectancy",
        fill = "Year") +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, color = "white"),  # Rotate x-axis labels & make them white
-    axis.text.y = element_text(color = "white"),  # Make y-axis labels white
-    plot.title = element_text(color = "#FFA500", face = "bold", size = 16),  # Title in bright orange
-    panel.background = element_rect(fill = "black"),  # Black background
-    plot.background = element_rect(fill = "black"),  # Black outer background
-    legend.background = element_rect(fill = "black"),  # Black legend background
-    legend.text = element_text(color = "white"),  # White legend text
-    legend.title = element_text(color = "#FFA500", face = "bold")  # Orange legend title
+    axis.title.y = element_text(color = "white", size = 14, face = "bold"),  # Ensure y-axis label is visible
+    axis.text.x = element_text(angle = 45, hjust = 1, color = "white", size = 12),  
+    axis.text.y = element_text(color = "white", size = 12),  
+    plot.title = element_text(color = "#FFA500", face = "bold", size = 16),  
+    panel.background = element_rect(fill = "black"),  
+    plot.background = element_rect(fill = "black"),  
+    legend.background = element_rect(fill = "black"),  
+    legend.text = element_text(color = "white"),  
+    legend.title = element_text(color = "#FFA500", face = "bold")  
   ) +
   scale_fill_manual(values = c("1998" = "#FF7F50",   # Orange-pink gradient
                                "2008" = "#8A2BE2",   # Bright purple
                                "2018" = "#FF69B4"))  # Hot pink
 ```
 
-
-## Diet - Calories
+# 1) Calorie Intake per Country  
 
 ```{r}
-calorie_life_data <- full_join(life_expectancy_data, calorie_data) %>% 
+# Merge life expectancy and calorie data, filtering for selected years
+calorie_life_data <- full_join(life_expectancy_data, calorie_data, by = "ra") %>% 
   filter(TIME_PERIOD %in% c(2018, 2008, 1998))
 
-calorie_life_data %>% 
-<<<<<<< HEAD
-  ggplot(aes(x = life_expectancy, y = calories, color = TIME_PERIOD)) + 
-  geom_point() +
-  facet_wrap(~ra) 
-=======
-  ggplot(aes(x = ra, y = calories, fill = factor(TIME_PERIOD))) + 
-  geom_col(position = "dodge")
->>>>>>> 71b9dd4a9308f1aea551e5eb78d2bb63f11c00b7
+# Create bar chart for calorie intake over selected years
+calorie_plot <- ggplot(calorie_life_data, aes(x = ra, y = calories, fill = factor(TIME_PERIOD))) + 
+  geom_col(position = "dodge") +  # Grouped bars for each country
+   coord_cartesian(ylim = c(2000, 4000)) +  # Zoom in without removing bars
+  scale_y_continuous(breaks = seq(2000, 4000, by = 500)) +  # Keep tick marks at
+  labs(title = "Calorie Intake",
+       x = "Country",
+       y = "Calories (kcals)",
+       fill = "Year") +
+  theme_minimal() +
+  theme(
+    axis.title.y = element_text(color = "white", size = 14, face = "bold"),  # Ensure y-axis label is visible
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 14, color = "white"),  
+    axis.text.y = element_text(size = 12, color = "white"),  
+    plot.title = element_text(size = 18, face = "bold", color = "#FFA500"),  
+    panel.background = element_rect(fill = "black"),  
+    plot.background = element_rect(fill = "black"),  
+    legend.background = element_rect(fill = "black"),  
+    legend.text = element_text(color = "white", size = 12),  
+    legend.title = element_text(color = "#FFA500", face = "bold", size = 14)  
+  ) +
+  scale_fill_manual(values = c("1998" = "#FF7F50",   # Orange-Pink
+                               "2008" = "#8A2BE2",   # Bright Purple
+                               "2018" = "#FF69B4"))  # Hot Pink
 ```
 
-## Tobacco
+# 2) Tobacco Consumption Per Country  
 
 ```{r}
 tobacco_life_data <- full_join(life_expectancy_data, tobacco_data) %>% 
   filter(TIME_PERIOD %in% c(2018, 2008, 1998))
 
-tobacco_life_data %>% 
+tobacco_plot <- tobacco_life_data %>% 
   ggplot(aes(x = ra, y = tobacco, fill = factor(TIME_PERIOD))) + 
-  geom_col(position = "dodge")
-
+  geom_col(position = "dodge") + # Grouped bars for each country
+  labs(title = "Tobacco Consumption",
+       x = "Country",
+       y = "% of Population who are Daily Smokers",
+       fill = "Year") +
+  theme_minimal() +
+  theme(
+    axis.title.y = element_text(color = "white", size = 10, face = "bold"),  # Ensure y-axis label is visible
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 14, color = "white"),  
+    axis.text.y = element_text(size = 10, color = "white"),  
+    plot.title = element_text(size = 18, face = "bold", color = "#FFA500"),  
+    panel.background = element_rect(fill = "black"),  
+    plot.background = element_rect(fill = "black"),  
+    legend.background = element_rect(fill = "black"),  
+    legend.text = element_text(color = "white", size = 12),  
+    legend.title = element_text(color = "#FFA500", face = "bold", size = 14)  
+  ) +
+  scale_fill_manual(values = c("1998" = "#FF7F50",   # Orange-Pink
+                               "2008" = "#8A2BE2",   # Bright Purple
+                               "2018" = "#FF69B4"))  # Hot Pink
 ```
 
-## Alcohol
+# 3) Alcohol Consumption Per Country 
 
 ```{r}
 alcohol_life_data <- full_join(life_expectancy_data, alcohol_data) %>% 
   filter(TIME_PERIOD %in% c(2018, 2008, 1998))
 
-alcohol_life_data %>% 
+alcohol_plot <- alcohol_life_data %>% 
   ggplot(aes(x = ra, y = alcohol, fill = factor(TIME_PERIOD))) + 
-  geom_col(position = "dodge")
+  geom_col(position = "dodge") +
+  labs(title = "Alcohol Consumption",
+       x = "Country",
+       y = "Alcohol Consumption (litres per person)",
+       fill = "Year") +
+  theme_minimal() +
+  theme(
+    axis.title.y = element_text(color = "white", size = 10, face = "bold"),  # Ensure y-axis label is visible
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 14, color = "white"),  
+    axis.text.y = element_text(size = 12, color = "white"),  
+    plot.title = element_text(size = 18, face = "bold", color = "#FFA500"),  
+    panel.background = element_rect(fill = "black"),  
+    plot.background = element_rect(fill = "black"),  
+    legend.background = element_rect(fill = "black"),  
+    legend.text = element_text(color = "white", size = 12),  
+    legend.title = element_text(color = "#FFA500", face = "bold", size = 14)  
+  ) +
+  scale_fill_manual(values = c("1998" = "#FF7F50",   # Orange-Pink
+                               "2008" = "#8A2BE2",   # Bright Purple
+                               "2018" = "#FF69B4"))  # Hot Pink
 ```
 
-## Vaping
+# 4) Life Expectnacy Per Country  
 
 ```{r}
-vaping_life_data <- full_join(life_expectancy_data, vaping_data)
+# Filter for the selected years
+life_time_periods <- life_expectancy_data %>% 
+   filter(TIME_PERIOD %in% c(2018, 2008, 1998))
 
-vaping_life_data %>% 
-  ggplot(aes(x = life_expectancy, y = vaping)) + 
-  geom_point() +
-  facet_wrap(~ra)
+# Ensure TIME_PERIOD is a factor for proper grouping
+life_time_periods$TIME_PERIOD <- as.factor(life_time_periods$TIME_PERIOD)
+
+# Create the bar plot with country on x-axis and 3 bars per country
+life_expectancy_plot <- ggplot(life_time_periods, aes(x = ra, y = life_expectancy, fill = TIME_PERIOD)) +
+  geom_bar(stat = "identity", position = "dodge") +  # Dodge groups bars within each country
+  coord_cartesian(ylim = c(75, 85)) +  # Zoom in without removing bars
+  scale_y_continuous(breaks = seq(75, 85, by = 1)) +  # Keep tick marks at intervals of 1
+  labs(title = "Life Expectancy",
+       x = "Country",
+       y = "Life Expectancy",
+       fill = "Year") +
+  theme_minimal() +
+  theme(
+    axis.title.y = element_text(color = "white", size = 14, face = "bold"),  # Ensure y-axis label is visible
+    axis.text.x = element_text(angle = 45, hjust = 1, color = "white", size = 12),  
+    axis.text.y = element_text(color = "white", size = 12),  
+    plot.title = element_text(color = "#FFA500", face = "bold", size = 16),  
+    panel.background = element_rect(fill = "black"),  
+    plot.background = element_rect(fill = "black"),  
+    legend.background = element_rect(fill = "black"),  
+    legend.text = element_text(color = "white"),  
+    legend.title = element_text(color = "#FFA500", face = "bold")  
+  ) +
+  scale_fill_manual(values = c("1998" = "#FF7F50",   # Orange-pink gradient
+                               "2008" = "#8A2BE2",   # Bright purple
+                               "2018" = "#FF69B4"))  # Hot pink
 ```
 
-## Table
+## Average Trends For Varibales From 1998 to 2018
 
 ```{r}
 total_data <- full_join(life_expectancy_data, calorie_data) %>% 
@@ -172,7 +249,41 @@ total_data <- full_join(life_expectancy_data, calorie_data) %>%
             tobacco = mean(tobacco, na.rm = TRUE),
             vaping = mean(vaping, na.rm = TRUE))
 
-total_data %>%
-  gt()
+# Create a table with `gt`
+gt_table <- total_data %>%
+  gt() %>%
+  tab_header(
+    title = md("**Average Trends For Varibales From 1998 to 2018**"),
+  ) %>%
+  fmt_number(columns = 2:6, decimals = 2) %>%  # Format numbers to 2 decimal places
+  cols_label(
+    ra = "Country",
+    life_expectancy = "Life Expectancy",
+    calories = "Calories",
+    alcohol = "Alcohol Consumption",
+    tobacco = "Tobacco Use",
+    vaping = "Vaping Use"
+  ) %>%
+  # Apply a background color band to the title
+  tab_style(
+    style = list(
+      cell_fill(color = "#8A2BE2"),  # Vibrant pink-red band for title
+      cell_text(color = "white", weight = "bold", font = "Arial", size = px(18))
+    ),
+    locations = cells_title(groups = "title")
+  ) %>%
+  # Apply a background color band to the column headers
+  tab_style(
+    style = list(
+      cell_fill(color = "#FFA500"),  # Orange band for headers
+      cell_text(color = "black", weight = "bold", size = px(14))
+    ),
+    locations = cells_column_labels(columns = everything())  # Applies to all column labels
+  ) %>%
+  tab_options(
+    table.font.size = "medium",
+    heading.title.font.size = "large",
+    column_labels.font.weight = "bold"
+  )
 ```
 
