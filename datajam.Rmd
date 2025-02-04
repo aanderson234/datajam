@@ -1,0 +1,28 @@
+---
+title: "datajam"
+author: "alex"
+date: "2025-02-04"
+output: html_document
+---
+
+# Set up  
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load libraries  
+```{r}
+library(tidyverse)
+library(dplyr)
+```
+
+## Load in data  
+```{r}
+alcohol_data <- read.csv("data/alcohol_consumption.csv")  
+calorie_data <- read.csv("data/calorie_supply.csv")
+life_expectancy_data <- read.csv("data/life_expectancy.csv")
+tobacco_data <- read.csv("data/tobacco_consumption.csv")
+vaping_data <- read.csv("data/vaping.csv")
+```
+
