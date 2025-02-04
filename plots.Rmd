@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r cars}
 library(tidyverse)
 library(dplyr)
+library(gt)
 ```
 
 ## Load in the data
@@ -113,9 +114,14 @@ calorie_life_data <- full_join(life_expectancy_data, calorie_data) %>%
   filter(TIME_PERIOD %in% c(2018, 2008, 1998))
 
 calorie_life_data %>% 
+<<<<<<< HEAD
   ggplot(aes(x = life_expectancy, y = calories, color = TIME_PERIOD)) + 
   geom_point() +
   facet_wrap(~ra) 
+=======
+  ggplot(aes(x = ra, y = calories, fill = factor(TIME_PERIOD))) + 
+  geom_col(position = "dodge")
+>>>>>>> 71b9dd4a9308f1aea551e5eb78d2bb63f11c00b7
 ```
 
 ## Tobacco
@@ -125,9 +131,9 @@ tobacco_life_data <- full_join(life_expectancy_data, tobacco_data) %>%
   filter(TIME_PERIOD %in% c(2018, 2008, 1998))
 
 tobacco_life_data %>% 
-  ggplot(aes(x = life_expectancy, y = tobacco, color = TIME_PERIOD)) + 
-  geom_point() +
-  facet_wrap(~ra)
+  ggplot(aes(x = ra, y = tobacco, fill = factor(TIME_PERIOD))) + 
+  geom_col(position = "dodge")
+
 ```
 
 ## Alcohol
@@ -137,9 +143,8 @@ alcohol_life_data <- full_join(life_expectancy_data, alcohol_data) %>%
   filter(TIME_PERIOD %in% c(2018, 2008, 1998))
 
 alcohol_life_data %>% 
-  ggplot(aes(x = life_expectancy, y = alcohol, color = TIME_PERIOD)) + 
-  geom_point() +
-  facet_wrap(~ra)
+  ggplot(aes(x = ra, y = alcohol, fill = factor(TIME_PERIOD))) + 
+  geom_col(position = "dodge")
 ```
 
 ## Vaping
@@ -152,3 +157,22 @@ vaping_life_data %>%
   geom_point() +
   facet_wrap(~ra)
 ```
+
+## Table
+
+```{r}
+total_data <- full_join(life_expectancy_data, calorie_data) %>% 
+  full_join(., tobacco_data) %>%
+  full_join(., alcohol_data) %>% 
+  full_join(., vaping_data) %>% 
+  group_by(ra) %>% 
+  summarise(life_expectancy = mean(life_expectancy, na.rm = TRUE),
+            calories = mean(calories, na.rm = TRUE),
+            alcohol = mean(alcohol, na.rm = TRUE),
+            tobacco = mean(tobacco, na.rm = TRUE),
+            vaping = mean(vaping, na.rm = TRUE))
+
+total_data %>%
+  gt()
+```
+
