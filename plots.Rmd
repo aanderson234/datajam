@@ -7,8 +7,8 @@ output: html_document
 
 # Set Up
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, results = 'hide', message = FALSE, warning = FALSE)
 ```
 
 ## Load Libraries  
@@ -29,8 +29,6 @@ calorie_data <- read_csv("data/calorie_supply.csv")
 tobacco_data <- read_csv("data/tobacco_consumption.csv")
 
 alcohol_data <- read_csv("data/alcohol_consumption.csv")  
-
-vaping_data <- read_csv("data/vaping.csv")
 ```
 
 ## Data Wrangling
@@ -61,56 +59,13 @@ alcohol_data <- alcohol_data %>%
          alcohol = OBS_VALUE) %>% 
   filter(Sex == "Total",
          Age == "15 years or over")
-
-vaping_data <- vaping_data %>% 
-    select(`Reference area`, OBS_VALUE, TIME_PERIOD, Sex, Age) %>%
-  rename(ra = `Reference area`,
-         vaping = OBS_VALUE) %>% 
-  filter(Sex == "Total",
-         Age == "15 years or over")
-```
-
-## Life expectancy plot  
-
-```{r}
-# Filter for the selected years
-life_time_periods <- life_expectancy_data %>% 
-   filter(TIME_PERIOD %in% c(2018, 2008, 1998))
-
-# Ensure TIME_PERIOD is a factor for proper grouping
-life_time_periods$TIME_PERIOD <- as.factor(life_time_periods$TIME_PERIOD)
-
-# Create the bar plot with country on x-axis and 3 bars per country
-life_expectancy_plot <- ggplot(life_time_periods, aes(x = ra, y = life_expectancy, fill = TIME_PERIOD)) +
-  geom_bar(stat = "identity", position = "dodge") +  # Dodge groups bars within each country
-  coord_cartesian(ylim = c(75, 85)) +  # Zoom in without removing bars
-  scale_y_continuous(breaks = seq(75, 85, by = 1)) +  # Keep tick marks at intervals of 1
-  labs(title = "Life Expectancy",
-       x = "Country",
-       y = "Life Expectancy",
-       fill = "Year") +
-  theme_minimal() +
-  theme(
-    axis.title.y = element_text(color = "white", size = 14, face = "bold"),  # Ensure y-axis label is visible
-    axis.text.x = element_text(angle = 45, hjust = 1, color = "white", size = 12),  
-    axis.text.y = element_text(color = "white", size = 12),  
-    plot.title = element_text(color = "#FFA500", face = "bold", size = 16),  
-    panel.background = element_rect(fill = "black"),  
-    plot.background = element_rect(fill = "black"),  
-    legend.background = element_rect(fill = "black"),  
-    legend.text = element_text(color = "white"),  
-    legend.title = element_text(color = "#FFA500", face = "bold")  
-  ) +
-  scale_fill_manual(values = c("1998" = "#FF7F50",   # Orange-pink gradient
-                               "2008" = "#8A2BE2",   # Bright purple
-                               "2018" = "#FF69B4"))  # Hot pink
 ```
 
 # 1) Calorie Intake per Country  
 
 ```{r}
 # Merge life expectancy and calorie data, filtering for selected years
-calorie_life_data <- full_join(life_expectancy_data, calorie_data, by = "ra") %>% 
+calorie_life_data <- full_join(life_expectancy_data, calorie_data) %>%
   filter(TIME_PERIOD %in% c(2018, 2008, 1998))
 
 # Create bar chart for calorie intake over selected years
@@ -137,6 +92,8 @@ calorie_plot <- ggplot(calorie_life_data, aes(x = ra, y = calories, fill = facto
   scale_fill_manual(values = c("1998" = "#FF7F50",   # Orange-Pink
                                "2008" = "#8A2BE2",   # Bright Purple
                                "2018" = "#FF69B4"))  # Hot Pink
+# display plot 
+print(calorie_plot)
 ```
 
 # 2) Tobacco Consumption Per Country  
@@ -167,6 +124,9 @@ tobacco_plot <- tobacco_life_data %>%
   scale_fill_manual(values = c("1998" = "#FF7F50",   # Orange-Pink
                                "2008" = "#8A2BE2",   # Bright Purple
                                "2018" = "#FF69B4"))  # Hot Pink
+
+# display plot 
+print(tobacco_plot)
 ```
 
 # 3) Alcohol Consumption Per Country 
@@ -197,6 +157,8 @@ alcohol_plot <- alcohol_life_data %>%
   scale_fill_manual(values = c("1998" = "#FF7F50",   # Orange-Pink
                                "2008" = "#8A2BE2",   # Bright Purple
                                "2018" = "#FF69B4"))  # Hot Pink
+#display plot
+print(alcohol_plot)
 ```
 
 # 4) Life Expectnacy Per Country  
@@ -233,36 +195,35 @@ life_expectancy_plot <- ggplot(life_time_periods, aes(x = ra, y = life_expectanc
   scale_fill_manual(values = c("1998" = "#FF7F50",   # Orange-pink gradient
                                "2008" = "#8A2BE2",   # Bright purple
                                "2018" = "#FF69B4"))  # Hot pink
+# display plot 
+print(life_expectancy_plot)
 ```
 
-## Average Trends For Varibales From 1998 to 2018
+## Average Trends For Variables From 1998 to 2018
 
-```{r}
-total_data <- full_join(life_expectancy_data, calorie_data) %>% 
+```{r echo=TRUE}
+total_data <- full_join(life_expectancy_data, calorie_data) %>%
   full_join(., tobacco_data) %>%
-  full_join(., alcohol_data) %>% 
-  full_join(., vaping_data) %>% 
-  group_by(ra) %>% 
+  full_join(., alcohol_data) %>%
+  group_by(ra) %>%
   summarise(life_expectancy = mean(life_expectancy, na.rm = TRUE),
             calories = mean(calories, na.rm = TRUE),
             alcohol = mean(alcohol, na.rm = TRUE),
-            tobacco = mean(tobacco, na.rm = TRUE),
-            vaping = mean(vaping, na.rm = TRUE))
+            tobacco = mean(tobacco, na.rm = TRUE))
 
 # Create a table with `gt`
-gt_table <- total_data %>%
-  gt() %>%
+
+  gt(total_data) %>%
   tab_header(
-    title = md("**Average Trends For Varibales From 1998 to 2018**"),
+    title = md("**Average Trends For Variables From 1998 to 2018**"),
   ) %>%
-  fmt_number(columns = 2:6, decimals = 2) %>%  # Format numbers to 2 decimal places
+  fmt_number(columns = 2:5, decimals = 2) %>%  # Format numbers to 2 decimal places
   cols_label(
     ra = "Country",
     life_expectancy = "Life Expectancy",
     calories = "Calories",
     alcohol = "Alcohol Consumption",
-    tobacco = "Tobacco Use",
-    vaping = "Vaping Use"
+    tobacco = "Tobacco Use"
   ) %>%
   # Apply a background color band to the title
   tab_style(
@@ -285,5 +246,5 @@ gt_table <- total_data %>%
     heading.title.font.size = "large",
     column_labels.font.weight = "bold"
   )
-```
 
+```
